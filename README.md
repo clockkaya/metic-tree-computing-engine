@@ -24,7 +24,8 @@
    - **逻辑级**: 继承 `BaseCalculator` 即可快速扩展新指标。
 3. **递归处理架构**: `BaseHandler` 采用递归深度优先遍历，自动化处理指标树的父子节点依赖计算。
 4. **全异步与缓存设计**: 基于 `Caffeine` 的配置缓存与 `ThreadPoolExecutor` 的并行计算，确保大数据量下的系统稳定性。
-5. **双向交互**
+5. **双向交互**：<img width="965" height="823" alt="交互时序图-效益" src="https://github.com/user-attachments/assets/c707372b-d6a4-47f5-bf5b-981fef77d6cb" />
+
 
 ## 📦 技术栈
 - **Core**: Java 8, Spring Boot, Dubbo (RPC)
