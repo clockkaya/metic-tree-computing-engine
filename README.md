@@ -1,4 +1,4 @@
-# Metric Tree Computing Engine (MTCE)
+# 元数据驱动的分布式指标树计算引擎 (Metric Tree Computing Engine)
 
 ## 🚀 项目简介
 本项目是一个基于**树状计算引擎**的自动化指标量化平台。它通过将复杂的业务量化逻辑抽象为“指标树”，利用高性能表达式引擎实现多维、多源数据的灵活配置与递归计算。
@@ -18,23 +18,38 @@
   - `demo-group-portal`: 集团侧监管门户，聚焦宏观态势与配置下发。
 
 ## ✨ 技术亮点
-1. **高性能计算引擎**: 集成 `AviatorEvaluator`，支持复杂的线性插值 (`LinearInterpolationFunction`) 等自定义函数，响应时间达毫秒级。
-2. **分级 OCP 原则实现**:
-   - **配置级**: 通过 `MetricConfigTree` 动态调整权重，无需重启。
-   - **逻辑级**: 继承 `BaseCalculator` 即可快速扩展新指标。
-3. **递归处理架构**: `BaseHandler` 采用递归深度优先遍历，自动化处理指标树的父子节点依赖计算。
-4. **全异步与缓存设计**: 基于 `Caffeine` 的配置缓存与 `ThreadPoolExecutor` 的并行计算，确保大数据量下的系统稳定性。
-5. **双向交互**：<img width="965" height="823" alt="交互时序图-效益" src="https://github.com/user-attachments/assets/c707372b-d6a4-47f5-bf5b-981fef77d6cb" />
+
+### 1. 元数据驱动的树状递归计算引擎
+
+- **模型抽象**：打破硬编码统计逻辑，将业务指标抽象为由元数据（MetricConfig）驱动的树状拓扑结构。
+
+- **递归算子**：主导设计了支持多级依赖的递归计算链路。底层引擎根据元数据定义的依赖关系，自动完成指标的自下而上（Bottom-up）聚合计算，实现了**高频业务逻辑的零代码定义**。将新指标的上线周期从“开发-测试-发布”的周级流程缩短至**分钟级配置下发**。
+
+- **计算下沉与代理模型**：设计 `BenefitProxyCalculator` 等代理组件，支持在计算过程中动态挂载业务逻辑，平衡了引擎的通用性与特定业务的灵活性。
+
+### 2. “集团-省分”两级分布式数据互联体系
+
+- **异步同步模型**：针对集团与省分公司物理隔离的异构环境，构建了基于消息中间件的双向异步同步机制，解决了跨地域海量指标传输的带宽瓶颈。
+- **秒级数据汇聚**：通过“局部预计算 + 全局异步汇聚”策略，实现各省分公司明细数据在集团端的秒级准实时汇总。
+- **多级容错机制**：设计了完备的数据对账与补偿逻辑，确保在复杂网络环境下，集团汇总视图与省分原始指标的最终一致性。
+
+<img width="965" height="823" alt="交互时序图-效益" src="https://github.com/user-attachments/assets/c707372b-d6a4-47f5-bf5b-981fef77d6cb" />
+
+### 3. 高并发架构下的极致性能优化
+
+- **多级缓存策略**：引入 Caffeine 本地缓存与分布式缓存协同，针对高频查询的元数据与指标中间态进行加速，QPS 提升显著。
+- **线程池精细化治理**：针对 IO 密集型的指标提取与计算密集型的递归运算，设计了独立的自定义线程池（ExecutorConfig），实现资源的物理隔离与平滑压测。
 
 
 ## 📦 技术栈
-- **Core**: Java 8, Spring Boot, Dubbo (RPC)
+- **Core**: Java 21, Aviator (高性能表达式引擎), 递归算法
 - **Engine**: Aviator (Expression Language)
 - **Cache**: Caffeine, Nacos (Config)
 - **Middleware**: Kafka (Data Pipe), MyBatis-Plus
 
 ## 🧱 详细项目目录结构
 
+```text
 .
 ├── demo-province-api (省级接口模块)
 │   └── src/main/java/com/demo/api/province
@@ -102,3 +117,4 @@
     ├── controller/             # 集团门户控制器
     ├── object/vo/              # 集团视图对象
     └── service/impl/           # 集团门户业务实现
+```
